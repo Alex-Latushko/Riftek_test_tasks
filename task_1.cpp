@@ -11,8 +11,8 @@ int main(){
 }
 
 unsigned long long power_of_two(int16_t power){
-	if (power < 0) 												{ return 0;	};
-	if (power > (int16_t)sizeof(unsigned long long) * 8 - 1) 	{ return 0;	};
-	if (power == 0) 											{ return 1; };
+        if (power < 0) 							{ return 0; };
+        if (power > (int16_t)sizeof(unsigned long long) * 8 - 1) 	{ return 0; };
+        if (power == 0) 						{ return 1; };
 	return 2llu << (power - 1);
 }
