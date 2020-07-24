@@ -3,26 +3,24 @@
 PainterWidget::PainterWidget(QWidget *parent) : QWidget(parent)
 {
         painter = new QPainter();
-
         init_form();
+        init_screen_timer();
+}
 
+void PainterWidget::init_form(){
+        QPalette pal = palette();
+        pal.setColor(QPalette::Background, Qt::black);
+        setAutoFillBackground(true);
+        setPalette(pal);
+        setFixedSize(1000, 250);
+}
+void PainterWidget::init_screen_timer(){
         screen_timer = new QTimer;
         screen_timer->setInterval(40);
         screen_timer->start();
 
         connect(screen_timer, SIGNAL(timeout()),
                 this, SLOT(update()));
-}
-
-void PainterWidget::init_form(){
-    QPalette pal = palette();
-    pal.setColor(QPalette::Background, Qt::black);
-    setAutoFillBackground(true);
-    setPalette(pal);
-    setFixedSize(1000, 250);
-}
-void PainterWidget::init_screen_timer(){
-
 }
 
 void PainterWidget::paintEvent(QPaintEvent*){
@@ -54,7 +52,7 @@ void PainterWidget::set_value_scale_factor(int* x){
 
 void PainterWidget::paint_grid(){
         painter->setPen(QPen(Qt::gray, 1, Qt::DotLine));
-        for (int i = 0; i < 20; i++){
+        for (int i = 0; i < 20; i++){    // vertical lines
                 if (i % 5 == 0){ painter->setPen(QPen(Qt::gray, 1, Qt::DashDotLine)); }
                 painter->drawLine(QPointF(i * width() / 20, 0),
                                   QPointF(i * width() / 20, height()));
@@ -62,13 +60,13 @@ void PainterWidget::paint_grid(){
         }
 
         int zero_level = height() / 2;
-        for (int i = -12; i < 23; i++){
+        for (int i = -12; i < 23; i++){  // horizontal lines
                 if (i % 5 == 0){ painter->setPen(QPen(Qt::gray, 1, Qt::DashDotLine)); }
                 painter->drawLine(QPointF(0, zero_level + i * height() / 25),
                                   QPointF(width(),zero_level + i * height() / 25));
                 if (i % 5 == 0){ painter->setPen(QPen(Qt::gray, 1, Qt::DotLine)); }
         }
-        painter->setPen(QPen(Qt::gray, 1, Qt::SolidLine));
+        painter->setPen(QPen(Qt::gray, 1, Qt::SolidLine));  // main lines
         painter->drawLine(QPointF(width() / 2, 0),
                           QPointF(width() / 2, height()));
         painter->drawLine(QPointF(0, height() / 2),

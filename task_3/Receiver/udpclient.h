@@ -8,12 +8,12 @@ class UdpClient : public QWidget
 {
     Q_OBJECT
 private:
-    QUdpSocket* m_pudp;
+        QUdpSocket* m_pudp;
 public:
-    UdpClient(QWidget *parent = nullptr);
+        UdpClient(QWidget *parent = nullptr);
 private slots:
-    void slotProcessDatagrams();
+        void slotProcessDatagrams();
 signals:
-    void value_received(int value);
+        void value_received(int value);
 };
 #endif // UDPCLIENT_H

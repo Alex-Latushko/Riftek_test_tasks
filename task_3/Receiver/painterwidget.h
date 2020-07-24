@@ -13,27 +13,25 @@ class PainterWidget : public QWidget
 {
     Q_OBJECT
 public:
+        int* p_time_scale_factor;
+        int* p_value_scale_factor;
+        QTimer* screen_timer;
+        QPainter* painter;
+        const QElapsedTimer* main_time;
+        const std::deque<std::pair<int64_t, int>>* dq_values;
 
-    QTimer* screen_timer;
-    QPainter* painter;
-    const QElapsedTimer* main_time;
-    const std::deque<std::pair<int64_t, int>>* dq_values;
-    int* p_time_scale_factor;
-    int* p_value_scale_factor;
+        void set_dq_values(std::deque<std::pair<int64_t, int>>* dq_v);
+        void set_main_time(QElapsedTimer* m_t);
+        void set_time_scale_factor(int* x);
+        void set_value_scale_factor(int* x);
 
-    explicit PainterWidget(QWidget *parent = nullptr);
-
-    void set_dq_values(std::deque<std::pair<int64_t, int>>* dq_v);
-    void set_main_time(QElapsedTimer* m_t);
-    void set_time_scale_factor(int* x);
-    void set_value_scale_factor(int* x);
-
+        explicit PainterWidget(QWidget *parent = nullptr);
 protected:
-    void init_form();
-    void init_screen_timer();
-    void paint_grid();
-    void paint_line();
-    void virtual paintEvent(QPaintEvent*);
+        void init_form();
+        void init_screen_timer();
+        void paint_grid();
+        void paint_line();
+        void virtual paintEvent(QPaintEvent*);
 };
 
 #endif // PAINTERWIDGET_H
