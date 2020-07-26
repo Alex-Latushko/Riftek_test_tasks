@@ -3,10 +3,8 @@
 
 #include "UdpServer.h"
 
-#include <ctime>
-#include <cstdlib>
 #include <cmath>
-#include <iostream>
+#include <random>
 
 #include <QWidget>
 #include <QHBoxLayout>
@@ -25,15 +23,24 @@ class SignalSource : public QWidget
     Q_OBJECT
 
 public:
+        SignalSource(QWidget *parent = nullptr);
+protected:
         const int init_speed = 1; // 1 ms
         const int init_value = 10;
+
         int result_value = 0;
         int base_value = init_value;
-        int varied_value = 51;
+        int abs_base_value = std::abs(base_value);
+        int varied_value = 50;
+        int sign = 0;
+        int temp_value = 0;
+        int temp_random = 0;
 
         int meander_count = 0;
         int sinus_count = 0;
         int ramp_count = 50;
+
+        std::mt19937 random_engine;
 
         UdpServer* server;
         QLabel* value_lbl;
@@ -50,9 +57,6 @@ public:
         QRadioButton* meander_mode_button;
         QRadioButton* ramp_mode_button;
 
-
-        SignalSource(QWidget *parent = nullptr);
-protected:
         void init_value_gb(QGroupBox* value_gb);
         void init_main_timer();
         void init_dials_gb(QGroupBox* dials_gb);

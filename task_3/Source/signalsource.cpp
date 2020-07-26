@@ -1,7 +1,9 @@
 #include "signalsource.h"
 
 SignalSource::SignalSource(QWidget *parent) : QWidget(parent){
-        srand(time(0));
+        std::random_device r_dev;
+        random_engine.seed(r_dev());
+
         setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint
                                   | Qt::WindowCloseButtonHint);
         server = new UdpServer;
@@ -67,11 +69,11 @@ void SignalSource::init_dials_gb(QGroupBox* dials_gb){
 
         QLabel* vvalue_caption_lbl = new QLabel("Random Value");
         varied_value_dial = new QDial;
-        varied_value_dial->setRange(1, 101);
+        varied_value_dial->setRange(0, 100);
         varied_value_dial->setValue(50);
         varied_value_dial->setNotchTarget(5);
         varied_value_dial->setNotchesVisible(true);
-        vvalue_value_lbl = new QLabel(QString::number((varied_value - 1)/100.0));
+        vvalue_value_lbl = new QLabel(QString::number(varied_value/100.0));
         QVBoxLayout* vvalue_layout = new QVBoxLayout;
         vvalue_layout->addWidget(vvalue_caption_lbl);
         vvalue_layout->addWidget(varied_value_dial);
@@ -126,16 +128,18 @@ void SignalSource::init_mode_gb(QGroupBox* mode_gb){
 }
 
 void SignalSource::slot_change_value(){
-        int temp_value = 0;
+        temp_value = 0;
 
         if (manual_mode_button->isChecked()){
             temp_value = base_value;
+
         } else if (sinus_mode_button->isChecked()){
-            ++sinus_count;
-            temp_value = base_value * std::sin( sinus_count  / 57.3 );
             if (sinus_count > 360) {
                 sinus_count = 0;
             }
+            temp_value = base_value * std::sin( 2 * std::asin(1)  // 2 * std::asin(1) = pi
+                                                  * sinus_count++
+                                                  / 180.0);
         } else if (meander_mode_button->isChecked()){
             ++meander_count;
             if ((meander_count / 10) == 0){
@@ -146,13 +150,15 @@ void SignalSource::slot_change_value(){
                 meander_count =0 ;
             }
         } else if (ramp_mode_button->isChecked()){
-            temp_value = --ramp_count;
-            if (ramp_count < -(std::abs(base_value)) ){
-                ramp_count = std::abs(base_value);
+            if (ramp_count < -abs_base_value ){
+                ramp_count = abs_base_value;
             }
+            temp_value = ramp_count--;
         }
-        int sign = rand() % 2 ? 1 : -1;
-        result_value = temp_value * (1.0 + (sign * rand() % varied_value) / 100.0);
+        std::uniform_int_distribution<unsigned> u_distrib(0, base_value * varied_value / 100.0);
+        temp_random = u_distrib(random_engine);
+        sign = u_distrib(random_engine) % 2 ? 1 : -1;
+        result_value = temp_value + sign * temp_random;
 
         value_lbl->setNum(result_value);
         emit(signal_changed_value(result_value));
@@ -160,11 +166,12 @@ void SignalSource::slot_change_value(){
 
 void SignalSource::set_base_value(int value){
         base_value = value;
+        abs_base_value = std::abs(base_value);
         bvalue_value_lbl->setNum(value);
 }
 void SignalSource::set_varied_value(int value){
         varied_value = value;
-        vvalue_value_lbl->setNum((value - 1)/100.0);
+        vvalue_value_lbl->setNum(value/100.0);
 }
 
 void SignalSource::set_speed(int value){

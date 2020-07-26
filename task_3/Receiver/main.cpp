@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     SignalReceiver receiver;
-    receiver.setFixedSize(1020, 500);
+    receiver.setFixedSize(1020, 550);
     receiver.move(450, 10);
     receiver.show();
 

@@ -78,7 +78,7 @@ void SignalReceiver::init_time_scale(QGroupBox* time_scale_gb){
         time_p_of_u_layout->addWidget(t_price_of_unit_lbl);
         time_p_of_u_layout->addStretch(1);
 
-        QDial* time_scale_dial = new QDial;
+        time_scale_dial = new QDial;
         time_scale_dial->setRange(1, 10);
         time_scale_dial->setValue(time_scale_factor);
         time_scale_dial->setNotchTarget(1);
@@ -92,6 +92,7 @@ void SignalReceiver::init_time_scale(QGroupBox* time_scale_gb){
         time_scale_factor_layout->addWidget(time_scale_factor_caption_lbl);
         time_scale_factor_layout->addWidget(time_scale_factor_lbl);
         time_scale_factor_layout->addStretch(1);
+        time_scale_factor_layout->setContentsMargins(11, 11, 11, 40);
 
         QVBoxLayout* time_scale_layout = new QVBoxLayout;
         time_scale_layout->addLayout(time_p_of_u_layout);
@@ -110,7 +111,7 @@ void SignalReceiver::init_value_scale(QGroupBox* value_scale_gb){
         value_p_of_u_layout->addWidget(v_price_of_unit_lbl);
         value_p_of_u_layout->addStretch(1);
 
-        QDial* value_scale_dial = new QDial;
+        value_scale_dial = new QDial;
         value_scale_dial->setRange(1, 10);
         value_scale_dial->setValue(value_scale_factor);
         value_scale_dial->setNotchTarget(1);
@@ -125,10 +126,21 @@ void SignalReceiver::init_value_scale(QGroupBox* value_scale_gb){
         value_scale_factor_layout->addWidget(value_scale_factor_lbl);
         value_scale_factor_layout->addStretch(1);
 
+        value_auto_scale_timer = new QTimer(this);
+        value_auto_scale_timer->setInterval(value_auto_scale_time);
+        connect(value_auto_scale_timer, SIGNAL(timeout()),
+                this, SLOT(calc_value_auto_scale_factor()));
+        value_auto_scale_checkbox = new QCheckBox ("Auto scale");
+        connect(value_auto_scale_checkbox, SIGNAL(stateChanged(int)),
+                this, SLOT(check_value_auto_scale_checkbox(int)));
+
+
         QVBoxLayout* value_scale_layout = new QVBoxLayout;
         value_scale_layout->addLayout(value_p_of_u_layout);
         value_scale_layout->addWidget(value_scale_dial);
         value_scale_layout->addLayout(value_scale_factor_layout);
+        value_scale_layout->addWidget(value_auto_scale_checkbox);
+        value_scale_factor_layout->setContentsMargins(11, 11, 11, 11);
 
         value_scale_gb->setLayout(value_scale_layout);
 }
@@ -166,6 +178,28 @@ void SignalReceiver::set_value_scale_factor(int value){
 }
 
 
+void SignalReceiver::find_max_value(){
+    max_value = 0;
+    for(auto& p : dq_values){
+        if (std::abs(p.second) > max_value) { max_value = std::abs(p.second); }
+    }
+}
 
+void SignalReceiver::calc_value_auto_scale_factor(){
+    find_max_value();
+    int temp_factor = 100 / (max_value == 0 ? 1 : max_value);
+    if (temp_factor > 10) {temp_factor = 10;}
+    //set_value_scale_factor(temp_factor);
+    value_scale_dial->setValue(temp_factor);
+}
 
-
+void SignalReceiver::check_value_auto_scale_checkbox(int status){
+    if (status == 0){
+        value_auto_scale_timer->stop();
+        value_scale_dial->setEnabled(true);
+        value_scale_dial->setValue(value_scale_factor);
+    } else {
+        value_auto_scale_timer->start();
+        value_scale_dial->setEnabled(false);
+    }
+}
